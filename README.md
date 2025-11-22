@@ -112,7 +112,7 @@ Peuplement du Datastore avec 11, 51, 101 utilisateurs 100 posts par utilisateur 
 python3 seed.py --users 11/51/101 --posts 1110/5100/10100 --follows-min 10/50/100 --follows-max 10/50/100
 ```
 
-Les programmes utilisés sont relativement les mêmes, j'ai tappé les commandes apache à la main puis construis le csv à partir de celles-ci.(Paramètre user différent dans chaque requête)
+Les programmes utilisés sont relativement les mêmes, j'ai tappé les commandes apache à la main puis construis le csv à partir de celles-ci. (Paramètre user différent dans chaque requête)
 
 ```bash
 ab -n 100 -c 50 -k  https://tp1-massive-data.ew.r.appspot.com/api/timeline?user=user5
