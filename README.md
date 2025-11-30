@@ -1,6 +1,6 @@
 # DataMassiveProject
 
-_Pour chacune des étapes qui vont suivre les données ont été rentrées à la main dans le csv après avoir obtenu les résultats sur locust._
+_Pour chacune des étapes qui vont suivre, les données ont été saisies à la main dans le fichier CSV après avoir obtenu les résultats avec Locust._
 
 ## **Passage à l'échelle sur la charge :**
 
