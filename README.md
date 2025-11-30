@@ -1,5 +1,7 @@
 # DataMassiveProject
 
+_Pour chacune des étapes qui vont suivre les données ont été rentrées à la main dans le csv après avoir obtenu les résultats sur locust._
+
 ## **Passage à l'échelle sur la charge :**
 
 
@@ -11,44 +13,28 @@ python seed.py --users 1000 --posts 50000 --follows-min 20 --follows-max 20
 ```
 
 ### Benchmark des performances :
-Script Python pour mesurer le temps moyen d'une requête timeline pour différentes concurrences et sauvegarder les résultats dans un CSV (conc.csv) :
+Script Python pour lancer locust et pouvoir éxécuter tout les tests sur le site :
 
 ```bash
-import subprocess
-import csv
-import re
+from locust import HttpUser, task, between
+import random
 
-# Paramètres
-url = "https://tp1-massive-data.ew.r.appspot.com/api/timeline?user=user1"
-concurrences = [1, 10, 20, 50, 100, 1000]
-runs = 3
-csv_file = "conc.csv"
+TOTAL_USERS = 1000
 
-# Préparer le CSV
-with open(csv_file, "w", newline="") as f:
-    writer = csv.writer(f)
-    writer.writerow(["PARAM","AVG_TIME","RUN","FAILED"])
+class TimelineUser(HttpUser):
+    wait_time = between(0.1, 0.5)
 
-    for c in concurrences:
-        for r in range(1, runs+1):
-            print(f"Running: concurrency={c}, run={r}")
-            try:
-                result = subprocess.run(
-                    ["ab", "-n", "100", "-c", str(c), url],
-                    capture_output=True, text=True, check=True
-                )
-                match = re.search(r"Time per request:\s+([\d\.]+) \[ms\]", result.stdout)
-                avg_time = float(match.group(1)) if match else -1
-                failed = 0
-            except subprocess.CalledProcessError:
-                avg_time = -1
-                failed = 1
+    def on_start(self):
+        # Chaque utilisateur Locust aura un user différent
+        self.user_id = random.randint(1, TOTAL_USERS)
 
-            writer.writerow([c, f"{avg_time}ms", r, failed])
+    @task
+    def get_timeline(self):
+        self.client.get(f"/api/timeline?user=user{self.user_id}")
 ```
 
 ### Plot des résultats :
-Script Python pour générer un barplot avec écart-type (calculé à l'avance) :
+Script Python pour générer les barplot :
 
 ```bash
 import pandas as pd
@@ -80,6 +66,7 @@ plt.savefig("conc.png")
 plt.show()
 ```
 
+### **Résultat pour le premier exercice :** 
 ![Benchmark](images/conc.png)
 
 ---
@@ -88,17 +75,15 @@ plt.show()
 
 ### Post :
 
-Peuplement du Datastore avec 50 utilisateurs, 10,100,1000 posts par utilisateur et 20 followees :
+Peuplement du Datastore avec 100 utilisateurs, 10,100,1000 posts par utilisateur et 20 followees :
 
 ```bash
-python seed.py --users 50 --posts 500/5000/50000 --follows-min 20 --follows-max 20
+python seed.py --users 100 --posts 1000/10000/100000 --follows-min 20 --follows-max 20
 ```
 
-Les programmes utilisés sont relativement les mêmes, j'ai tappé les commandes apache à la main puis construis le csv à partir de celles-ci.
+Les programmes utilisés sont les mêmes :
 
-```bash
-ab -n 100 -c 50 -k  https://tp1-massive-data.ew.r.appspot.com/api/timeline?user=user5
-```
+
 
 ![Bechmark](images/post.png)
 
@@ -112,10 +97,7 @@ Peuplement du Datastore avec 11, 51, 101 utilisateurs 100 posts par utilisateur 
 python3 seed.py --users 11/51/101 --posts 1110/5100/10100 --follows-min 10/50/100 --follows-max 10/50/100
 ```
 
-Les programmes utilisés sont relativement les mêmes, j'ai tappé les commandes apache à la main puis construis le csv à partir de celles-ci.
+Les programmes utilisés sont les mêmes :
 
-```bash
-ab -n 100 -c 50 -k  https://tp1-massive-data.ew.r.appspot.com/api/timeline?user=user5
-```
 
 ![Bechmark](images/fanout.png)
